@@ -50,4 +50,12 @@ fs.writeFileSync(
   makePdf("Anexos y formatos (EJEMPLO)", "Reemplazar por el documento oficial.")
 );
 
-console.log("PDFs de ejemplo creados en", outDir);
+const rrhhDir = path.join(process.cwd(), "public", "oficinas", "recursos-humanos");
+fs.mkdirSync(rrhhDir, { recursive: true });
+fs.writeFileSync(
+  path.join(rrhhDir, "directiva-2026.pdf"),
+  makePdf("Directiva de personal 2026 (EJEMPLO)", "Reemplazar por el documento oficial.")
+);
+
+console.log("PDFs de ejemplo creados.");
+
