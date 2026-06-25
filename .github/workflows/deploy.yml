@@ -1,0 +1,62 @@
+name: Build and deploy to HestiaCP
+
+on:
+  # Publish on every push to the main branch.
+  push:
+    branches: [main]
+  # Allow running the workflow manually from the Actions tab.
+  workflow_dispatch:
+
+# Allow only one deployment at a time; let an in-progress run finish.
+concurrency:
+  group: deploy-hestia
+  cancel-in-progress: false
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build static site
+        run: npm run build
+        # Served at the domain root (hospitalantoniolorena.gob.pe), so no base path.
+        env:
+          NEXT_PUBLIC_BASE_PATH: ""
+
+      - name: Configure SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.HESTIA_SSH_KEY }}" > ~/.ssh/id_deploy
+          chmod 600 ~/.ssh/id_deploy
+
+      - name: Install lftp
+        run: sudo apt-get update && sudo apt-get install -y lftp
+
+      - name: Deploy over SFTP (mirror)
+        # The hosting account is SFTP-only (no remote shell), so we mirror the
+        # build output with lftp over SFTP. --delete removes stale files, so
+        # HESTIA_TARGET_PATH must point at the site's dedicated public_html.
+        run: |
+          lftp -c "
+            set sftp:connect-program 'ssh -a -x -o StrictHostKeyChecking=accept-new -o UserKnownHostsFile=/dev/null -i ~/.ssh/id_deploy -p ${{ secrets.HESTIA_SSH_PORT }}';
+            set net:max-retries 2;
+            set net:timeout 20;
+            open sftp://${{ secrets.HESTIA_USER }}@${{ secrets.HESTIA_HOST }};
+            mirror -R --delete --parallel=4 --verbose ./out/ '${{ secrets.HESTIA_TARGET_PATH }}';
+            bye
+          "
+
+      - name: Clean up SSH key
+        if: always()
+        run: rm -f ~/.ssh/id_deploy
