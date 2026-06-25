@@ -47,12 +47,13 @@ jobs:
         # The hosting account is SFTP-only (no remote shell), so we mirror the
         # build output with lftp over SFTP. --delete removes stale files, so
         # HESTIA_TARGET_PATH must point at the site's dedicated public_html.
+        # `-u "user,"` passes the username with an empty password; auth is done
+        # by the SSH key inside sftp:connect-program.
         run: |
-          lftp -c "
+          lftp -u "${{ secrets.HESTIA_USER }}," "sftp://${{ secrets.HESTIA_HOST }}" -e "
             set sftp:connect-program 'ssh -a -x -o StrictHostKeyChecking=accept-new -o UserKnownHostsFile=/dev/null -i ~/.ssh/id_deploy -p ${{ secrets.HESTIA_SSH_PORT }}';
             set net:max-retries 2;
             set net:timeout 20;
-            open sftp://${{ secrets.HESTIA_USER }}@${{ secrets.HESTIA_HOST }};
             mirror -R --delete --parallel=4 --verbose ./out/ '${{ secrets.HESTIA_TARGET_PATH }}';
             bye
           "
