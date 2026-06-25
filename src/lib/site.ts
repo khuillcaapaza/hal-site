@@ -36,10 +36,82 @@ export const navLinks = [
   { label: "Especialidades", href: "/#especialidades" },
   { label: "Citas", href: "/citas" },
   { label: "Convocatorias", href: "/convocatorias" },
-  { label: "Nosotros", href: "/#nosotros" },
+  {
+    label: "Nosotros",
+    href: "/nosotros",
+    children: [
+      { label: "La organización", href: "/nosotros" },
+      { label: "Historia", href: "/nosotros/historia" },
+      { label: "Autoridades", href: "/nosotros/autoridades" },
+    ],
+  },
   { label: "Noticias", href: "/blog" },
   { label: "Contacto", href: "/#contacto" },
 ];
+
+/**
+ * Institutional content for the "Nosotros" pages
+ * (/nosotros, /nosotros/historia, /nosotros/autoridades).
+ * Edit these texts freely to keep the information up to date.
+ */
+export const nosotros = {
+  intro:
+    "El Hospital Antonio Lorena del Cusco es un establecimiento de salud público de referencia para la macrorregión sur del país, comprometido con una atención humana, segura y de calidad para la población.",
+  mision:
+    "Brindar atención integral de salud de mediana y alta complejidad a la población, con calidad, calidez y equidad, contribuyendo a mejorar la calidad de vida de las personas en la región Cusco.",
+  vision:
+    "Ser un hospital moderno, acreditado y reconocido como referente regional por la excelencia de sus servicios, la investigación en salud y el trato humano centrado en el paciente.",
+  valores: [
+    { title: "Vocación de servicio", text: "Ponemos a la persona y su salud en el centro de nuestro trabajo." },
+    { title: "Calidad y seguridad", text: "Mejoramos continuamente nuestros procesos para una atención segura." },
+    { title: "Equidad", text: "Atendemos a todos con igualdad de trato y oportunidades." },
+    { title: "Compromiso", text: "Trabajamos con responsabilidad y ética por la comunidad cusqueña." },
+  ],
+  history: {
+    intro:
+      "Con más de 90 años de historia, el Hospital Antonio Lorena forma parte del patrimonio histórico y social del Cusco.",
+    milestones: [
+      {
+        year: "1933",
+        title: "Adjudicación del terreno",
+        text: "El 30 de mayo de 1933 se adjudica el terreno en la Plazoleta de Belén, distrito de Santiago, dando origen al «Hospital Mixto del Cusco».",
+      },
+      {
+        year: "1933",
+        title: "Homenaje al Dr. Antonio Lorena Rozas",
+        text: "El hospital es renombrado en honor al destacado médico cusqueño Antonio Lorena Rozas.",
+      },
+      {
+        year: "1972",
+        title: "Zona Monumental del Cusco",
+        text: "El hospital pasa a integrar la Zona Monumental del Cusco.",
+      },
+      {
+        year: "1983",
+        title: "Patrimonio de la Humanidad",
+        text: "Forma parte del casco histórico del Cusco declarado Patrimonio de la Humanidad por la UNESCO.",
+      },
+      {
+        year: "Actualidad",
+        title: "Hospital de referencia",
+        text: "Es uno de los principales hospitales de referencia del sur del país, con servicios de creciente complejidad.",
+      },
+    ],
+  },
+  /**
+   * Authorities / organizational chart. Replace the placeholder names with
+   * the current officials of the hospital.
+   */
+  authorities: [
+    { role: "Dirección General", name: "Nombre por asignar", area: "Órgano de Dirección" },
+    { role: "Dirección Ejecutiva Adjunta", name: "Nombre por asignar", area: "Órgano de Dirección" },
+    { role: "Oficina de Administración", name: "Nombre por asignar", area: "Órgano de Apoyo" },
+    { role: "Oficina de Planeamiento Estratégico", name: "Nombre por asignar", area: "Órgano de Asesoramiento" },
+    { role: "Oficina de Gestión de la Calidad", name: "Nombre por asignar", area: "Órgano de Asesoramiento" },
+    { role: "Oficina de Recursos Humanos", name: "Nombre por asignar", area: "Órgano de Apoyo" },
+  ],
+};
+
 
 /**
  * Slides for the homepage hero carousel. Each slide can highlight a
