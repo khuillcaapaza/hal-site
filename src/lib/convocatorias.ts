@@ -18,8 +18,32 @@ export interface ConvocatoriaMeta {
   coverColor: string;
 }
 
+/** A downloadable document attached to a convocatoria. */
+export interface Attachment {
+  title: string;
+  description: string;
+  file: string;
+  size?: string;
+}
+
 export interface Convocatoria extends ConvocatoriaMeta {
   contentHtml: string;
+  attachments: Attachment[];
+}
+
+/** Normalizes the `attachments` list coming from the Markdown frontmatter. */
+function parseAttachments(value: unknown): Attachment[] {
+  if (!Array.isArray(value)) return [];
+
+  return value
+    .filter((item): item is Record<string, unknown> => !!item && typeof item === "object")
+    .map((item) => ({
+      title: String(item.title ?? "Documento"),
+      description: String(item.description ?? ""),
+      file: String(item.file ?? ""),
+      size: item.size ? String(item.size) : undefined,
+    }))
+    .filter((item) => item.file);
 }
 
 function readConvocatoriaMeta(fileName: string): ConvocatoriaMeta {
@@ -83,5 +107,6 @@ export async function getConvocatoriaBySlug(slug: string): Promise<Convocatoria 
     status: data.status ?? "Abierta",
     coverColor: data.coverColor ?? "from-green-100 to-green-200",
     contentHtml: processed.toString(),
+    attachments: parseAttachments(data.attachments),
   };
 }

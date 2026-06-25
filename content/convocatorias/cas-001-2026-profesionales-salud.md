@@ -6,6 +6,15 @@ date: "2026-06-15"
 deadline: "2026-06-30"
 status: "Abierta"
 coverColor: "from-green-100 to-green-200"
+attachments:
+  - title: "Bases del proceso CAS N° 001-2026"
+    description: "Requisitos generales, perfiles de puesto y cronograma completo del proceso."
+    file: "/convocatorias/cas-001-2026/bases.pdf"
+    size: "320 KB"
+  - title: "Anexos y formatos de postulación"
+    description: "Declaraciones juradas y ficha de postulación para presentar el expediente."
+    file: "/convocatorias/cas-001-2026/anexos.pdf"
+    size: "180 KB"
 ---
 
 El **Hospital Antonio Lorena del Cusco** convoca a profesionales de la salud para cubrir diversas plazas bajo el régimen de Contratación Administrativa de Servicios (CAS), regulado por el Decreto Legislativo N° 1057.

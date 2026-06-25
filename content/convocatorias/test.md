@@ -6,6 +6,15 @@ date: "2026-06-15"
 deadline: "2026-06-30"
 status: "Abierta"
 coverColor: "from-green-100 to-green-200"
+attachments:
+  - title: "Cronograma de entrevistas — PP Cáncer"
+    description: "Fechas y horarios de entrevista personal del proceso CAS 1057 — PP Cáncer."
+    file: "/convocatorias/test/cronograma-entrevista-pp-cancer.pdf"
+    size: "1.1 MB"
+  - title: "Resultados de evaluación CAS 1057 — PP Cáncer"
+    description: "Resultados de la evaluación curricular del proceso CAS 1057 — PP Cáncer."
+    file: "/convocatorias/test/resultados-evaluacion-1057-pp-cancer.pdf"
+    size: "91 KB"
 ---
 
 El **Hospital Antonio Lorena del Cusco** convoca a profesionales de la salud para cubrir diversas plazas bajo el régimen de Contratación Administrativa de Servicios (CAS), regulado por el Decreto Legislativo N° 1057.
@@ -38,7 +47,4 @@ El **Hospital Antonio Lorena del Cusco** convoca a profesionales de la salud par
 Los expedientes se reciben en la **Oficina de Recursos Humanos** del Hospital Antonio Lorena, en el horario de 8:00 a.m. a 4:00 p.m., adjuntando la documentación solicitada en las bases.
 
 > Las bases completas del proceso se encuentran disponibles en la Oficina de Recursos Humanos y en el Portal de Transparencia del hospital.
-
-[CRONOGRAMA-ENTREVISTA-PP-CANCER.pdf](https://github.com/user-attachments/files/29320570/CRONOGRAMA-ENTREVISTA-PP-CANCER.pdf)
-[Resultados-Evaluacion-Cov-1057-PP-Cancer.pdf](https://github.com/user-attachments/files/29320574/Resultados-Evaluacion-Cov-1057-PP-Cancer.pdf)
 
