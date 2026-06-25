@@ -1,11 +1,27 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import { citas } from "@/lib/site";
 
 const weekDays = ["L", "M", "M", "J", "V", "S", "D"];
-// Simple decorative month grid (starts on a Monday).
-const days = Array.from({ length: 30 }, (_, i) => i + 1);
-const highlighted = [4, 12, 18, 25];
+const monthNames = [
+  "enero", "febrero", "marzo", "abril", "mayo", "junio",
+  "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre",
+];
 
 export default function CitasBanner() {
+  // Calculated in the browser so it always shows the visitor's current month.
+  const [today, setToday] = useState<Date | null>(null);
+  useEffect(() => setToday(new Date()), []);
+
+  const year = today?.getFullYear() ?? 0;
+  const month = today?.getMonth() ?? 0;
+  const todayNum = today?.getDate() ?? 0;
+  const daysInMonth = today ? new Date(year, month + 1, 0).getDate() : 0;
+  // Number of leading blank cells so day 1 falls on its real weekday (Monday-start grid).
+  const leadingBlanks = today ? (new Date(year, month, 1).getDay() + 6) % 7 : 0;
+  const days = Array.from({ length: daysInMonth }, (_, i) => i + 1);
+
   return (
     <section id="citas" className="py-20 bg-gradient-to-br from-green-800 to-green-950 text-white overflow-hidden relative">
       <div className="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full translate-x-1/3 -translate-y-1/3 pointer-events-none" />
@@ -34,6 +50,13 @@ export default function CitasBanner() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
             </a>
+
+            <a
+              href="/cronograma-citas"
+              className="ml-3 inline-flex items-center gap-2 border-2 border-white/60 text-white font-semibold px-8 py-3 rounded-full hover:bg-white/10 transition-colors"
+            >
+              Cronograma de citas
+            </a>
           </div>
 
           {/* Calendar visual */}
@@ -42,7 +65,9 @@ export default function CitasBanner() {
               <div className="flex items-center justify-between mb-5">
                 <div>
                   <p className="text-green-700 font-bold text-lg leading-none">Consulta Externa</p>
-                  <p className="text-gray-400 text-sm mt-1">Programación mensual</p>
+                  <p className="text-gray-400 text-sm mt-1 capitalize">
+                    {today ? `${monthNames[month]} ${year}` : "Programación mensual"}
+                  </p>
                 </div>
                 <div className="w-11 h-11 rounded-xl bg-green-100 text-green-700 flex items-center justify-center">
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -57,12 +82,16 @@ export default function CitasBanner() {
                 ))}
               </div>
               <div className="grid grid-cols-7 gap-1 text-center text-sm">
+                {Array.from({ length: leadingBlanks }).map((_, i) => (
+                  <span key={`blank-${i}`} />
+                ))}
                 {days.map((d) => {
-                  const isOn = highlighted.includes(d);
+                  const isToday = d === todayNum;
                   return (
                     <span
                       key={d}
-                      className={`py-1.5 rounded-lg ${isOn ? "bg-green-600 text-white font-bold" : "text-gray-600"}`}
+                      aria-current={isToday ? "date" : undefined}
+                      className={`py-1.5 rounded-lg ${isToday ? "bg-green-600 text-white font-bold ring-2 ring-green-300" : "text-gray-600"}`}
                     >
                       {d}
                     </span>
@@ -72,7 +101,7 @@ export default function CitasBanner() {
 
               <div className="mt-5 flex items-center gap-2 text-xs text-gray-500">
                 <span className="w-3 h-3 rounded bg-green-600 inline-block" />
-                Días con mayor disponibilidad de citas
+                Día de hoy · Atención de lunes a sábado
               </div>
             </div>
           </div>
