@@ -1,0 +1,11 @@
+# Treat these as binary so Git never applies end-of-line normalization
+# (which would corrupt the files). Important for PDFs served from the build.
+*.pdf binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary
+*.woff binary
+*.woff2 binary
