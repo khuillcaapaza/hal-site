@@ -54,12 +54,18 @@ jobs:
         # to public_html and served from the server. `-X '*.pdf'` excludes them
         # from the mirror so --delete never removes the manually-uploaded files
         # and the build never needs to ship them.
+        #
+        # `documentos/` holds ONLY server-managed PDFs and has no generated HTML
+        # in out/, so it must be excluded as a whole directory (`-x`); otherwise
+        # --delete tries to remove the non-empty (PDF-only) folder and hangs over
+        # SFTP. convocatorias/ and oficinas/ are safe because they DO contain
+        # generated HTML pages in out/.
         run: |
           lftp -u "${{ secrets.HESTIA_USER }}," "sftp://${{ secrets.HESTIA_HOST }}" -e "
             set sftp:connect-program 'ssh -a -x -o StrictHostKeyChecking=accept-new -o UserKnownHostsFile=/dev/null -i ~/.ssh/id_deploy -p ${{ secrets.HESTIA_SSH_PORT }}';
             set net:max-retries 2;
             set net:timeout 20;
-            mirror -R --delete -X '*.pdf' --parallel=4 --verbose ./out/ '${{ secrets.HESTIA_TARGET_PATH }}';
+            mirror -R --delete -X '*.pdf' -x '^documentos/' --parallel=4 --verbose ./out/ '${{ secrets.HESTIA_TARGET_PATH }}';
             bye
           "
 
