@@ -45,3 +45,6 @@ next-env.d.ts
 # (the CI mirror excludes *.pdf). The convocatorias listing uses the committed
 # manifest at src/lib/convocatorias-files.json instead of scanning the folder.
 /public/**/*.pdf
+
+# Local artifact: bundle of PDFs to upload to the server (not for Git).
+/pdfs-para-servidor.zip
