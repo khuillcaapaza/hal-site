@@ -46,8 +46,8 @@ export default function MaternitySection() {
           <div className="relative">
             <div className="rounded-3xl overflow-hidden h-96 lg:h-[480px] shadow-xl relative">
               <Image
-                src="/images/photo-1.jpg"
-                alt="Hospital Antonio Lorena del Cusco"
+                src="/images/FOTO-ANTIGUA-4-1024x648.png"
+                alt="Fotografía antigua del Hospital Antonio Lorena del Cusco"
                 fill
                 className="object-cover"
               />

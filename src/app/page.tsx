@@ -6,14 +6,14 @@ import DoctorFinder from "@/components/DoctorFinder";
 import ConvocatoriasSection from "@/components/ConvocatoriasSection";
 import Blog from "@/components/Blog";
 import MaternitySection from "@/components/MaternitySection";
-import HealthPlan from "@/components/HealthPlan";
+import EnlacesInteres from "@/components/EnlacesInteres";
 import Footer from "@/components/Footer";
 import { getAllPosts } from "@/lib/posts";
 import { getAllConvocatorias } from "@/lib/convocatorias";
 
 export default function Home() {
   const posts = getAllPosts();
-  const convocatorias = getAllConvocatorias();
+  const convocatorias = getAllConvocatorias().slice(0, 8);
 
   return (
     <main>
@@ -25,7 +25,7 @@ export default function Home() {
       <ConvocatoriasSection convocatorias={convocatorias} />
       <Blog posts={posts} />
       <MaternitySection />
-      <HealthPlan />
+      <EnlacesInteres />
       <Footer />
     </main>
   );

@@ -17,7 +17,7 @@ export default function Blog({ posts }: { posts: PostMeta[] }) {
         <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-12 gap-4">
           <div>
             <p className="text-green-700 font-semibold text-sm uppercase tracking-widest mb-2">Blog de Salud</p>
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900">Artículos recientes</h2>
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900">Notas de prensa</h2>
           </div>
           <Link href="/blog" className="text-green-700 font-semibold hover:underline text-sm">
             Ver todos →

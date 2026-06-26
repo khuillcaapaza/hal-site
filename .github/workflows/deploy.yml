@@ -49,12 +49,17 @@ jobs:
         # HESTIA_TARGET_PATH must point at the site's dedicated public_html.
         # `-u "user,"` passes the username with an empty password; auth is done
         # by the SSH key inside sftp:connect-program.
+        #
+        # PDFs are NOT versioned in Git (see .gitignore): they are uploaded once
+        # to public_html and served from the server. `-X '*.pdf'` excludes them
+        # from the mirror so --delete never removes the manually-uploaded files
+        # and the build never needs to ship them.
         run: |
           lftp -u "${{ secrets.HESTIA_USER }}," "sftp://${{ secrets.HESTIA_HOST }}" -e "
             set sftp:connect-program 'ssh -a -x -o StrictHostKeyChecking=accept-new -o UserKnownHostsFile=/dev/null -i ~/.ssh/id_deploy -p ${{ secrets.HESTIA_SSH_PORT }}';
             set net:max-retries 2;
             set net:timeout 20;
-            mirror -R --delete --parallel=4 --verbose ./out/ '${{ secrets.HESTIA_TARGET_PATH }}';
+            mirror -R --delete -X '*.pdf' --parallel=4 --verbose ./out/ '${{ secrets.HESTIA_TARGET_PATH }}';
             bye
           "
 

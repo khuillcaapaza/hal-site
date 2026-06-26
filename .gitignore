@@ -39,3 +39,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Large PDF assets are served directly from the server, not stored in Git.
+# They are uploaded once to the site's public_html and preserved by the deploy
+# (the CI mirror excludes *.pdf). The convocatorias listing uses the committed
+# manifest at src/lib/convocatorias-files.json instead of scanning the folder.
+/public/**/*.pdf

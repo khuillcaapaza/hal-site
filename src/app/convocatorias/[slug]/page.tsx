@@ -7,13 +7,7 @@ import {
   getAllConvocatoriaSlugs,
   getConvocatoriaBySlug,
 } from "@/lib/convocatorias";
-import { formatDate } from "@/lib/posts";
-
-const statusColors: Record<string, string> = {
-  Abierta: "bg-green-100 text-green-700",
-  "En evaluación": "bg-amber-100 text-amber-700",
-  Cerrada: "bg-gray-200 text-gray-600",
-};
+import { formatDate } from "@/lib/format";
 
 // Pre-render every convocatoria as a static page at build time.
 export function generateStaticParams() {
@@ -26,14 +20,16 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const convocatoria = await getConvocatoriaBySlug(slug);
+  const convocatoria = getConvocatoriaBySlug(slug);
   if (!convocatoria) return { title: "Convocatoria no encontrada · Hospital Antonio Lorena del Cusco" };
 
   return {
     title: `${convocatoria.title} · Hospital Antonio Lorena del Cusco`,
-    description: convocatoria.excerpt,
+    description: convocatoria.description,
   };
 }
+
+const isImage = (ext: string) => ["jpg", "jpeg", "png"].includes(ext);
 
 export default async function ConvocatoriaPage({
   params,
@@ -41,7 +37,7 @@ export default async function ConvocatoriaPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const convocatoria = await getConvocatoriaBySlug(slug);
+  const convocatoria = getConvocatoriaBySlug(slug);
 
   if (!convocatoria) notFound();
 
@@ -59,60 +55,70 @@ export default async function ConvocatoriaPage({
             <span className="text-xs font-semibold px-3 py-1 rounded-full bg-white/15 text-white uppercase tracking-wider">
               {convocatoria.area}
             </span>
-            <span className={`text-xs font-semibold px-3 py-1 rounded-full ${statusColors[convocatoria.status] ?? statusColors.Abierta}`}>
-              {convocatoria.status}
+            <span className="text-xs font-semibold px-3 py-1 rounded-full bg-gray-200 text-gray-700">
+              Cerrada
             </span>
           </div>
           <h1 className="text-3xl sm:text-4xl font-bold leading-tight mb-4">
             {convocatoria.title}
           </h1>
-          <div className="flex flex-wrap gap-x-6 gap-y-1 text-green-100 text-sm">
-            {convocatoria.date && <span>Publicada: {formatDate(convocatoria.date)}</span>}
-            {convocatoria.deadline && <span>Cierre de postulación: {formatDate(convocatoria.deadline)}</span>}
-          </div>
+          <p className="text-green-100 leading-relaxed mb-4">{convocatoria.description}</p>
+          {convocatoria.date && (
+            <p className="text-green-200 text-sm">Publicada: {formatDate(convocatoria.date)}</p>
+          )}
         </div>
       </section>
 
       {/* Body */}
       <article className="py-16 bg-white">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div
-            className="prose-article"
-            dangerouslySetInnerHTML={{ __html: convocatoria.contentHtml }}
-          />
-
-          {convocatoria.attachments.length > 0 && (
-            <div className="mt-12">
+          {convocatoria.files.length === 0 ? (
+            <p className="text-gray-400 text-center py-8">Aún no hay documentos publicados para esta convocatoria.</p>
+          ) : (
+            <div>
               <h2 className="text-2xl font-bold text-gray-900 mb-1">Documentos de la convocatoria</h2>
-              <p className="text-gray-500 mb-6">Descarga las bases, anexos y formatos relacionados con este proceso.</p>
+              <p className="text-gray-500 mb-6">
+                Descarga las bases, comunicados, fe de erratas y resultados relacionados con este proceso.
+              </p>
               <ul className="space-y-4">
-                {convocatoria.attachments.map((doc) => (
+                {convocatoria.files.map((doc) => (
                   <li
-                    key={doc.file}
+                    key={doc.name}
                     className="flex flex-col sm:flex-row sm:items-center gap-4 p-5 rounded-2xl border border-gray-100 bg-gray-50 hover:border-green-200 hover:bg-green-50/50 transition-colors"
                   >
-                    <div className="w-12 h-12 shrink-0 rounded-xl bg-red-50 text-red-600 flex items-center justify-center">
+                    <div className={`w-12 h-12 shrink-0 rounded-xl flex items-center justify-center ${isImage(doc.ext) ? "bg-blue-50 text-blue-600" : "bg-red-50 text-red-600"}`}>
                       <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8} aria-hidden>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7l5 5v11a2 2 0 0 1-2 2z" />
+                        {isImage(doc.ext) ? (
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 0 1 2.828 0L16 16m-2-2 1.586-1.586a2 2 0 0 1 2.828 0L20 14m-6-6h.01M6 20h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2z" />
+                        ) : (
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7l5 5v11a2 2 0 0 1-2 2z" />
+                        )}
                       </svg>
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-gray-900">
-                        {doc.title}
-                        {doc.size && <span className="ml-2 text-xs font-normal text-gray-400">PDF · {doc.size}</span>}
-                      </p>
-                      {doc.description && <p className="text-sm text-gray-500 mt-0.5">{doc.description}</p>}
+                      <p className="font-semibold text-gray-900 break-words">{doc.label}</p>
+                      <p className="text-xs text-gray-400 uppercase mt-0.5">{doc.ext}</p>
                     </div>
-                    <a
-                      href={doc.file}
-                      download
-                      className="shrink-0 inline-flex items-center justify-center gap-2 bg-green-700 text-white text-sm font-semibold px-5 py-2.5 rounded-full hover:bg-green-800 transition-colors"
-                    >
-                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" />
-                      </svg>
-                      Descargar PDF
-                    </a>
+                    <div className="flex shrink-0 gap-2">
+                      <a
+                        href={doc.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center justify-center gap-2 border border-green-700 text-green-700 text-sm font-semibold px-4 py-2.5 rounded-full hover:bg-green-50 transition-colors"
+                      >
+                        Ver
+                      </a>
+                      <a
+                        href={doc.href}
+                        download
+                        className="inline-flex items-center justify-center gap-2 bg-green-700 text-white text-sm font-semibold px-5 py-2.5 rounded-full hover:bg-green-800 transition-colors"
+                      >
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" />
+                        </svg>
+                        Descargar
+                      </a>
+                    </div>
                   </li>
                 ))}
               </ul>

@@ -31,21 +31,16 @@ export default function HistoriaPage() {
         </div>
       </section>
 
-      {/* Timeline */}
+      {/* Texto */}
       <section className="py-16 bg-white">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-          <ol className="relative border-l-2 border-green-100 ml-3">
-            {nosotros.history.milestones.map((m, i) => (
-              <li key={`${m.year}-${i}`} className="mb-10 ml-8">
-                <span className="absolute -left-[11px] flex items-center justify-center w-5 h-5 bg-green-700 rounded-full ring-4 ring-white" />
-                <span className="inline-block text-xs font-bold uppercase tracking-wider text-green-700 mb-1">
-                  {m.year}
-                </span>
-                <h3 className="text-lg font-bold text-gray-900 mb-1">{m.title}</h3>
-                <p className="text-gray-600 leading-relaxed">{m.text}</p>
-              </li>
+          <div className="space-y-6">
+            {nosotros.history.paragraphs.map((p, i) => (
+              <p key={i} className="text-gray-700 leading-relaxed text-justify">
+                {p}
+              </p>
             ))}
-          </ol>
+          </div>
         </div>
       </section>
 

@@ -2,23 +2,17 @@
 
 import { useRef } from "react";
 import Link from "next/link";
-import type { ConvocatoriaMeta } from "@/lib/convocatorias";
-import { formatDate } from "@/lib/format";
-
-const statusColors: Record<string, string> = {
-  Abierta: "bg-green-100 text-green-700",
-  "En evaluación": "bg-amber-100 text-amber-700",
-  Cerrada: "bg-gray-200 text-gray-600",
-};
+import type { Convocatoria } from "@/lib/convocatorias";
 
 const areaColors: Record<string, string> = {
   CAS: "bg-green-700",
-  Terceros: "bg-emerald-700",
+  Reemplazo: "bg-emerald-700",
   Nombramiento: "bg-amber-600",
+  Ascenso: "bg-sky-700",
   General: "bg-gray-600",
 };
 
-export default function ConvocatoriasSection({ convocatorias }: { convocatorias: ConvocatoriaMeta[] }) {
+export default function ConvocatoriasSection({ convocatorias }: { convocatorias: Convocatoria[] }) {
   const trackRef = useRef<HTMLDivElement>(null);
 
   const scrollBy = (dir: number) => {
@@ -79,16 +73,16 @@ export default function ConvocatoriasSection({ convocatorias }: { convocatorias:
               <div className="p-6">
                 <div className="flex items-center justify-between mb-4">
                   <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">{c.area}</span>
-                  <span className={`text-xs font-semibold px-3 py-1 rounded-full ${statusColors[c.status] ?? statusColors.Abierta}`}>
-                    {c.status}
+                  <span className="text-xs font-semibold px-3 py-1 rounded-full bg-gray-200 text-gray-600">
+                    Cerrada
                   </span>
                 </div>
                 <h3 className="font-bold text-gray-900 text-lg leading-snug mb-3 group-hover:text-green-700 transition-colors">
                   {c.title}
                 </h3>
-                <p className="text-gray-500 text-sm leading-relaxed mb-5 line-clamp-3">{c.excerpt}</p>
+                <p className="text-gray-500 text-sm leading-relaxed mb-5 line-clamp-3">{c.description}</p>
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-400">Cierre: {formatDate(c.deadline)}</span>
+                  <span className="text-gray-400">{c.files.length} documento{c.files.length === 1 ? "" : "s"}</span>
                   <span className="text-green-700 font-semibold group-hover:underline">Ver más →</span>
                 </div>
               </div>
