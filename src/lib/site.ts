@@ -235,7 +235,7 @@ export const services = [
   },
   {
     title: "Denuncias",
-    desc: "Información de vigilancia epidemiológica del hospital.",
+    desc: "Ingresa tu denuncia.",
     icon: "chart",
     href: "https://docs.google.com/forms/d/1xL4vzFPJ-a5xC2e7WfobdL0Mm5ODkr_Alm9o4mjo4l8/preview",
     external: true,
