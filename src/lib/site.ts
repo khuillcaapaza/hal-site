@@ -234,11 +234,11 @@ export const services = [
     image: "/images/photo-2.jpg",
   },
   {
-    title: "Reporte Epidemiológico",
+    title: "Denuncias",
     desc: "Información de vigilancia epidemiológica del hospital.",
     icon: "chart",
-    href: "#",
-    external: false,
+    href: "https://docs.google.com/forms/d/1xL4vzFPJ-a5xC2e7WfobdL0Mm5ODkr_Alm9o4mjo4l8/preview",
+    external: true,
     image: "/images/hero.jpeg",
   },
 ];
