@@ -1,14 +1,14 @@
 import type { MetadataRoute } from "next";
 import { getAllPosts } from "@/lib/posts";
 import { getAllConvocatorias } from "@/lib/convocatorias";
-import { getAllCronogramaSlugs } from "@/lib/cronograma";
+import { getCronogramaSlugsForBuild } from "@/lib/cronograma-build";
 import { getAllOficinaSlugs } from "@/lib/oficinas";
 
 const BASE_URL = "https://hospitalantoniolorena.gob.pe";
 
 export const dynamic = "force-static";
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
 
   const toDate = (value?: string): Date => {
@@ -44,7 +44,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.6,
   }));
 
-  const cronogramas: MetadataRoute.Sitemap = getAllCronogramaSlugs().map((slug) => ({
+  const cronogramas: MetadataRoute.Sitemap = (await getCronogramaSlugsForBuild()).map((slug) => ({
     url: `${BASE_URL}/cronograma-citas/${slug}/`,
     lastModified: now,
     changeFrequency: "monthly",

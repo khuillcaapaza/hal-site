@@ -1,26 +1,58 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { citas } from "@/lib/site";
+import { getCronogramaBySlug } from "@/lib/api";
+import { WEEKDAYS, type AreaSchedule, type Weekday } from "@/lib/cronograma";
 
-const weekDays = ["L", "M", "M", "J", "V", "S", "D"];
 const monthNames = [
   "enero", "febrero", "marzo", "abril", "mayo", "junio",
   "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre",
 ];
 
-export default function CitasBanner() {
-  // Calculated in the browser so it always shows the visitor's current month.
-  const [today, setToday] = useState<Date | null>(null);
-  useEffect(() => setToday(new Date()), []);
+type Estado =
+  | { fase: "cargando" }
+  | {
+      fase: "listo";
+      now: Date;
+      weekday: Weekday;
+      disponibles: AreaSchedule[];
+      hayCronograma: boolean;
+    };
 
-  const year = today?.getFullYear() ?? 0;
-  const month = today?.getMonth() ?? 0;
-  const todayNum = today?.getDate() ?? 0;
-  const daysInMonth = today ? new Date(year, month + 1, 0).getDate() : 0;
-  // Number of leading blank cells so day 1 falls on its real weekday (Monday-start grid).
-  const leadingBlanks = today ? (new Date(year, month, 1).getDay() + 6) % 7 : 0;
-  const days = Array.from({ length: daysInMonth }, (_, i) => i + 1);
+export default function CitasBanner() {
+  // Se resuelve en el navegador para usar siempre la fecha del visitante y
+  // consultar en vivo el cronograma del mes actual.
+  const [estado, setEstado] = useState<Estado>({ fase: "cargando" });
+
+  useEffect(() => {
+    let activo = true;
+    (async () => {
+      const now = new Date();
+      const weekday = WEEKDAYS[(now.getDay() + 6) % 7];
+      const monthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+      try {
+        const cronograma = await getCronogramaBySlug(monthKey);
+        if (!activo) return;
+        const disponibles = cronograma
+          ? cronograma.areas.filter((a) => a.days.includes(weekday))
+          : [];
+        setEstado({ fase: "listo", now, weekday, disponibles, hayCronograma: !!cronograma });
+      } catch {
+        if (!activo) return;
+        setEstado({ fase: "listo", now, weekday, disponibles: [], hayCronograma: false });
+      }
+    })();
+    return () => {
+      activo = false;
+    };
+  }, []);
+
+  const listo = estado.fase === "listo" ? estado : null;
+  const monthLabel = listo
+    ? `${monthNames[listo.now.getMonth()]} ${listo.now.getFullYear()}`
+    : "Programación mensual";
 
   return (
     <section id="citas" className="py-20 bg-gradient-to-br from-green-800 to-green-950 text-white overflow-hidden relative">
@@ -51,23 +83,21 @@ export default function CitasBanner() {
               </svg>
             </a>
 
-            <a
+            <Link
               href="/cronograma-citas"
               className="ml-3 inline-flex items-center gap-2 border-2 border-white/60 text-white font-semibold px-8 py-3 rounded-full hover:bg-white/10 transition-colors"
             >
               Cronograma de citas
-            </a>
+            </Link>
           </div>
 
-          {/* Calendar visual */}
+          {/* Especialidades disponibles hoy */}
           <div className="lg:justify-self-end w-full max-w-sm">
             <div className="bg-white rounded-3xl p-6 shadow-2xl text-gray-800">
               <div className="flex items-center justify-between mb-5">
                 <div>
                   <p className="text-green-700 font-bold text-lg leading-none">Consulta Externa</p>
-                  <p className="text-gray-400 text-sm mt-1 capitalize">
-                    {today ? `${monthNames[month]} ${year}` : "Programación mensual"}
-                  </p>
+                  <p className="text-gray-400 text-sm mt-1 capitalize">{monthLabel}</p>
                 </div>
                 <div className="w-11 h-11 rounded-xl bg-green-100 text-green-700 flex items-center justify-center">
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -76,27 +106,57 @@ export default function CitasBanner() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-7 gap-1 text-center text-xs font-semibold text-gray-400 mb-2">
-                {weekDays.map((d, i) => (
-                  <span key={i}>{d}</span>
-                ))}
+              {/* Día actual */}
+              <div className="flex items-center gap-4 rounded-2xl bg-green-600 text-white px-5 py-4">
+                <span className="text-5xl font-bold leading-none tabular-nums">
+                  {listo ? listo.now.getDate() : "—"}
+                </span>
+                <div>
+                  <p className="font-semibold capitalize leading-tight">
+                    {listo ? listo.weekday : "Hoy"}
+                  </p>
+                  <p className="text-green-100 text-sm capitalize">{monthLabel}</p>
+                </div>
               </div>
-              <div className="grid grid-cols-7 gap-1 text-center text-sm">
-                {Array.from({ length: leadingBlanks }).map((_, i) => (
-                  <span key={`blank-${i}`} />
-                ))}
-                {days.map((d) => {
-                  const isToday = d === todayNum;
-                  return (
-                    <span
-                      key={d}
-                      aria-current={isToday ? "date" : undefined}
-                      className={`py-1.5 rounded-lg ${isToday ? "bg-green-600 text-white font-bold ring-2 ring-green-300" : "text-gray-600"}`}
-                    >
-                      {d}
-                    </span>
-                  );
-                })}
+
+              {/* Especialidades de hoy */}
+              <div className="mt-5">
+                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
+                  Especialidades disponibles hoy
+                </p>
+
+                {!listo ? (
+                  <ul className="space-y-2 animate-pulse">
+                    {Array.from({ length: 3 }).map((_, i) => (
+                      <li key={i} className="h-11 rounded-xl bg-gray-100" />
+                    ))}
+                  </ul>
+                ) : listo.disponibles.length > 0 ? (
+                  <ul className="space-y-2">
+                    {listo.disponibles.map((a) => (
+                      <li
+                        key={a.area}
+                        className="flex items-start justify-between gap-3 rounded-xl bg-green-50 border border-green-100 px-3 py-2"
+                      >
+                        <div className="min-w-0">
+                          <p className="font-semibold text-green-800 text-sm truncate">{a.area}</p>
+                          {a.location && <p className="text-xs text-gray-500 truncate">{a.location}</p>}
+                        </div>
+                        {a.time && (
+                          <span className="text-xs font-medium text-green-700 whitespace-nowrap shrink-0">
+                            {a.time}
+                          </span>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-sm text-gray-500 rounded-xl bg-gray-50 border border-gray-100 px-3 py-3">
+                    {listo.hayCronograma
+                      ? "Hoy no hay entrega de citas en Consulta Externa."
+                      : "Aún no se ha publicado el cronograma de este mes."}
+                  </p>
+                )}
               </div>
 
               <div className="mt-5 flex items-center gap-2 text-xs text-gray-500">
