@@ -1,7 +1,7 @@
+import { Suspense } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ConvocatoriasList from "@/components/ConvocatoriasList";
-import { getAllConvocatorias } from "@/lib/convocatorias";
 
 export const metadata = {
   title: "Convocatorias · Hospital Antonio Lorena del Cusco",
@@ -10,8 +10,6 @@ export const metadata = {
 };
 
 export default function ConvocatoriasPage() {
-  const convocatorias = getAllConvocatorias();
-
   return (
     <main>
       <Navbar />
@@ -31,7 +29,9 @@ export default function ConvocatoriasPage() {
       {/* List */}
       <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <ConvocatoriasList convocatorias={convocatorias} />
+          <Suspense fallback={<p className="text-center text-gray-400 py-12">Cargando convocatorias…</p>}>
+            <ConvocatoriasList />
+          </Suspense>
         </div>
       </section>
 

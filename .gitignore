@@ -48,3 +48,6 @@ next-env.d.ts
 
 # Local artifact: bundle of PDFs to upload to the server (not for Git).
 /pdfs-para-servidor.zip
+
+# PDFs locales (se sirven desde el servidor, no del repo)
+/public/documentos/

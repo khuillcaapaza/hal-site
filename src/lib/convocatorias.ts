@@ -1,6 +1,22 @@
-import filesManifest from "./convocatorias-files.json";
+/**
+ * Capa de datos de convocatorias.
+ *
+ * El sitio público lee las convocatorias EN VIVO desde la API de convocatorias
+ * (hal-convocatorias-api). Las páginas de listado hacen `fetch` en el navegador,
+ * por lo que los cambios hechos en el panel aparecen sin volver a desplegar.
+ *
+ * Los ayudantes de build (generateStaticParams / sitemap / generateMetadata)
+ * hacen `fetch` en el servidor y fallan en silencio (devuelven vacío) para que
+ * una API caída nunca rompa la construcción estática.
+ */
 
-/** A downloadable file that belongs to a convocatoria. */
+/** URL pública del servicio de convocatorias (sin barra final). */
+const API_BASE = (
+  process.env.NEXT_PUBLIC_CONVOCATORIAS_API ??
+  "https://convocatorias.hospitalantoniolorena.gob.pe"
+).replace(/\/+$/, "");
+
+/** Un archivo descargable que pertenece a una convocatoria. */
 export interface ConvocatoriaFile {
   name: string;
   label: string;
@@ -8,212 +24,198 @@ export interface ConvocatoriaFile {
   ext: string;
 }
 
+/** Metadatos de una convocatoria (forma de listado). */
 export interface ConvocatoriaMeta {
   slug: string;
   title: string;
   area: string;
-  /** ISO date `yyyy-mm-dd`. */
+  /** Fecha ISO `yyyy-mm-dd`. */
   date: string;
   year: number;
   month: number;
   day: number;
   status: string;
   description: string;
+  /** Número de documentos adjuntos. */
+  fileCount: number;
 }
 
+/** Convocatoria completa (forma de detalle). */
 export interface Convocatoria extends ConvocatoriaMeta {
+  cuerpo: string;
   files: ConvocatoriaFile[];
 }
 
-/**
- * File listing per convocatoria. Generated from `public/convocatorias` by
- * `scripts/gen-convocatorias-manifest.mjs`. Using a committed manifest lets the
- * large PDFs be served from the server (not stored in Git) while the build
- * still produces the correct download links.
- */
-const manifest: Record<string, string[]> = filesManifest;
+// ── Formas que devuelve la API ────────────────────────────────────────
+
+interface ApiMeta {
+  slug: string;
+  title: string;
+  area: string;
+  date: string;
+  status: string;
+  description: string;
+  publicado?: boolean;
+  archivos?: number;
+}
+
+interface ApiFile {
+  id?: number;
+  name: string;
+  label: string;
+  ext: string;
+  size?: number;
+  href: string;
+}
+
+interface ApiDetail extends ApiMeta {
+  cuerpo?: string;
+  files?: ApiFile[];
+}
+
+// ── Mapeo API → modelo del sitio ──────────────────────────────────────
+
+function dateParts(date: string): { year: number; month: number; day: number } {
+  const [year, month, day] = (date ?? "").split("-").map((n) => parseInt(n, 10));
+  return { year: year || 0, month: month || 0, day: day || 0 };
+}
+
+function mapMeta(api: ApiMeta): ConvocatoriaMeta {
+  return {
+    slug: api.slug,
+    title: api.title,
+    area: api.area,
+    date: api.date,
+    ...dateParts(api.date),
+    status: api.status,
+    description: api.description,
+    fileCount: api.archivos ?? 0,
+  };
+}
+
+function mapFile(f: ApiFile): ConvocatoriaFile {
+  return {
+    name: f.name,
+    label: f.label,
+    href: f.href,
+    ext: (f.ext ?? "").toLowerCase(),
+  };
+}
+
+function mapDetail(api: ApiDetail): Convocatoria {
+  const files = (api.files ?? []).map(mapFile);
+  return { ...mapMeta(api), fileCount: files.length, cuerpo: api.cuerpo ?? "", files };
+}
+
+// ── Lectura desde la API ──────────────────────────────────────────────
+
+/** Filtros admitidos por el listado público. */
+export interface ConvocatoriasQuery {
+  q?: string;
+  area?: string;
+  year?: number | string;
+  month?: number | string;
+  page?: number;
+  perPage?: number;
+  signal?: AbortSignal;
+}
+
+/** Página de resultados del listado público (con metadatos de paginación). */
+export interface ConvocatoriasPage {
+  items: ConvocatoriaMeta[];
+  total: number;
+  page: number;
+  perPage: number;
+  totalPages: number;
+  /** Años disponibles (para el filtro), de mayor a menor. */
+  years: number[];
+}
+
+interface ApiPageMeta {
+  total?: number;
+  page?: number;
+  per_page?: number;
+  total_pages?: number;
+  years?: number[];
+}
 
 /**
- * Convocatoria metadata. All processes are classified as closed ("Cerrada").
- * Dates are organized by year / month / day for grouping and filtering.
+ * Listado de convocatorias publicadas con búsqueda (`q`, `area`, `year`,
+ * `month`) y paginación (`page`, `perPage`). Devuelve una página vacía si la
+ * API no responde.
  */
-const convocatoriasMeta: Omit<ConvocatoriaMeta, "year" | "month" | "day" | "status">[] = [
-  // 2026
-  {
-    slug: "reemplazo-suplencia-01-2026",
-    title: "Contratación por Reemplazo y Suplencia N° 01-2026 (D.L. 276)",
-    area: "Reemplazo",
-    date: "2026-02-24",
-    description:
-      "Proceso de contratación temporal de personal por reemplazo y suplencia bajo el régimen del Decreto Legislativo N° 276.",
-  },
-  {
-    slug: "cas-001-2026",
-    title: "Proceso CAS N° 001-2026",
-    area: "CAS",
-    date: "2026-01-15",
-    description:
-      "Convocatoria del Proceso de Contratación Administrativa de Servicios (CAS) N° 001-2026 del Hospital Antonio Lorena.",
-  },
-  // 2025
-  {
-    slug: "cas-004-2025",
-    title: "Convocatoria CAS N° 004-2025",
-    area: "CAS",
-    date: "2025-11-01",
-    description:
-      "Proceso de Contratación Administrativa de Servicios (CAS) N° 004-2025, con bases, comunicados, fe de erratas y resultados.",
-  },
-  {
-    slug: "lineamientos-ascenso-2025",
-    title: "Lineamientos del Proceso de Ascenso 2025",
-    area: "Ascenso",
-    date: "2025-10-01",
-    description:
-      "Lineamientos y publicación oficial del proceso de ascenso del personal asistencial (D.S. N° 013-2025-SA).",
-  },
-  {
-    slug: "cas-003-2025",
-    title: "Convocatoria CAS N° 003-2025",
-    area: "CAS",
-    date: "2025-09-01",
-    description:
-      "Proceso de Contratación Administrativa de Servicios (CAS) N° 003-2025, con bases, fe de erratas y resultados.",
-  },
-  {
-    slug: "nombramiento-salud-2025",
-    title: "Nombramiento del Personal de la Salud 2025",
-    area: "Nombramiento",
-    date: "2025-08-01",
-    description:
-      "Proceso de nombramiento del personal asistencial de la salud conforme a la Ley N° 32185.",
-  },
-  {
-    slug: "reemplazo-01-2025",
-    title: "Contratación Temporal por Reemplazo N° 01-2025 (D.L. 276)",
-    area: "Reemplazo",
-    date: "2025-07-04",
-    description:
-      "Proceso de selección para la contratación temporal de personal por reemplazo bajo el Decreto Legislativo N° 276.",
-  },
-  {
-    slug: "cas-002-2025-cancer",
-    title: "Convocatoria CAS N° 002-2025 — Programa Cáncer",
-    area: "CAS",
-    date: "2025-06-26",
-    description:
-      "Proceso CAS N° 002-2025 para el Programa Presupuestal de Prevención y Control del Cáncer.",
-  },
-  {
-    slug: "cambio-grupo-ocupacional-2025",
-    title: "Cambio de Grupo Ocupacional y Cambio de Línea de Carrera",
-    area: "General",
-    date: "2025-05-19",
-    description:
-      "Proceso de Cambio de Grupo Ocupacional y Cambio de Línea de Carrera (D.S. N° 003-2025-SA), con reglamento, cronogramas, comunicados y resultados.",
-  },
-  {
-    slug: "cas-02-2025",
-    title: "Contratación Administrativa de Servicios — CAS N° 02-2025",
-    area: "CAS",
-    date: "2025-03-04",
-    description:
-      "Segunda convocatoria de Contratación Administrativa de Servicios (CAS) N° 02-2025-UGRH-HAL.",
-  },
-  {
-    slug: "cas-01-2025",
-    title: "Convocatoria CAS N° 01-2025",
-    area: "CAS",
-    date: "2025-01-15",
-    description:
-      "Primera convocatoria de Contratación Administrativa de Servicios (CAS) N° 01-2025-UGRH-HAL.",
-  },
-  // 2024
-  {
-    slug: "cas-excepcional-cancer-2024",
-    title: "Concurso CAS Excepcional — Programa Cáncer",
-    area: "CAS",
-    date: "2024-12-20",
-    description:
-      "Concurso CAS de selección de personal (excepcional) para el Programa de Cáncer, con fe de erratas y resultados finales.",
-  },
-  {
-    slug: "reemplazo-02-2024",
-    title: "Contratación Temporal por Reemplazo N° 02-2024 (D.L. 276)",
-    area: "Reemplazo",
-    date: "2024-12-14",
-    description:
-      "Proceso de contratación temporal de personal por reemplazo N° 02-2024 bajo el Decreto Legislativo N° 276.",
-  },
-  {
-    slug: "reemplazo-01-2024",
-    title: "Contratación Temporal por Reemplazo N° 01-2024 (D.L. 276)",
-    area: "Reemplazo",
-    date: "2024-11-15",
-    description:
-      "Proceso de contratación temporal de personal por reemplazo N° 01-2024 bajo el Decreto Legislativo N° 276.",
-  },
-  {
-    slug: "cas-003-2024",
-    title: "Convocatoria CAS N° 003-2024",
-    area: "CAS",
-    date: "2024-10-01",
-    description:
-      "Proceso de Contratación Administrativa de Servicios (CAS) N° 003-2024, con bases, fe de erratas y resultados.",
-  },
-  {
-    slug: "cas-002-2024",
-    title: "Convocatoria CAS N° 002-2024",
-    area: "CAS",
-    date: "2024-08-15",
-    description:
-      "Proceso de Contratación Administrativa de Servicios (CAS) N° 002-2024, con bases, fe de erratas y resultados.",
-  },
-];
+export async function fetchConvocatorias(query: ConvocatoriasQuery = {}): Promise<ConvocatoriasPage> {
+  const { signal, q, area, year, month, page, perPage } = query;
+  const empty: ConvocatoriasPage = {
+    items: [],
+    total: 0,
+    page: page ?? 1,
+    perPage: perPage ?? 12,
+    totalPages: 1,
+    years: [],
+  };
 
-/** Builds a readable label from a raw file name. */
-function labelFromFilename(fileName: string): string {
-  const base = fileName.replace(/\.[^.]+$/, "");
-  if (/^(SKM[_-]|img\d|DOC-?\d|CamScanner|WhatsApp|SCAN|ilovepdf|\d{6,})/i.test(base)) {
-    return "Documento adjunto";
+  const sp = new URLSearchParams();
+  if (q) sp.set("q", q);
+  if (area) sp.set("area", String(area));
+  if (year) sp.set("year", String(year));
+  if (month) sp.set("month", String(month));
+  if (page) sp.set("page", String(page));
+  if (perPage) sp.set("per_page", String(perPage));
+  const qs = sp.toString();
+
+  try {
+    const res = await fetch(`${API_BASE}/convocatorias${qs ? `?${qs}` : ""}`, {
+      signal,
+      cache: "no-store",
+    });
+    if (!res.ok) return empty;
+    const data = (await res.json()) as { convocatorias?: ApiMeta[]; meta?: ApiPageMeta };
+    const list = Array.isArray(data?.convocatorias) ? data.convocatorias : [];
+    const meta = data?.meta ?? {};
+    return {
+      items: list.map(mapMeta),
+      total: meta.total ?? list.length,
+      page: meta.page ?? empty.page,
+      perPage: meta.per_page ?? empty.perPage,
+      totalPages: meta.total_pages ?? 1,
+      years: Array.isArray(meta.years) ? meta.years : [],
+    };
+  } catch {
+    return empty;
   }
-  return base
-    .replace(/[-_]+/g, " ")
-    .replace(/\s*\(\d+\)\s*$/, "")
-    .replace(/\s+/g, " ")
-    .trim();
 }
 
-/** Reads the files of a convocatoria from the manifest. */
-function listFiles(slug: string): ConvocatoriaFile[] {
-  return (manifest[slug] ?? []).map((name) => ({
-    name,
-    label: labelFromFilename(name),
-    href: `/convocatorias/${slug}/${encodeURIComponent(name)}`,
-    ext: (name.split(".").pop() ?? "").toLowerCase(),
-  }));
+/**
+ * Todas las convocatorias publicadas (sin paginar). Útil para build-time
+ * (sitemap / generateStaticParams). Devuelve `[]` si la API no responde.
+ */
+export async function getAllConvocatorias(signal?: AbortSignal): Promise<ConvocatoriaMeta[]> {
+  const page = await fetchConvocatorias({ perPage: 1000, signal });
+  return page.items;
 }
 
-function withDateParts(meta: (typeof convocatoriasMeta)[number]): ConvocatoriaMeta {
-  const [year, month, day] = meta.date.split("-").map((n) => parseInt(n, 10));
-  return { ...meta, year, month, day, status: "Cerrada" };
+/** Una convocatoria publicada con sus archivos, o `null` si no existe. */
+export async function getConvocatoriaBySlug(
+  slug: string,
+  signal?: AbortSignal,
+): Promise<Convocatoria | null> {
+  try {
+    const res = await fetch(`${API_BASE}/convocatorias/${encodeURIComponent(slug)}`, {
+      signal,
+      cache: "no-store",
+    });
+    if (!res.ok) return null;
+    const data = (await res.json()) as { convocatoria?: ApiDetail };
+    if (!data?.convocatoria) return null;
+    return mapDetail(data.convocatoria);
+  } catch {
+    return null;
+  }
 }
 
-/** Returns all convocatorias with their files, sorted newest first. */
-export function getAllConvocatorias(): Convocatoria[] {
-  return convocatoriasMeta
-    .map((meta) => ({ ...withDateParts(meta), files: listFiles(meta.slug) }))
-    .sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
-}
-
-/** Returns the slugs for every convocatoria (used by generateStaticParams). */
-export function getAllConvocatoriaSlugs(): string[] {
-  return convocatoriasMeta.map((c) => c.slug);
-}
-
-/** Returns a single convocatoria with its files. */
-export function getConvocatoriaBySlug(slug: string): Convocatoria | null {
-  const meta = convocatoriasMeta.find((c) => c.slug === slug);
-  if (!meta) return null;
-  return { ...withDateParts(meta), files: listFiles(slug) };
+/** Slugs de todas las convocatorias (para `generateStaticParams`). Falla a `[]`. */
+export async function getAllConvocatoriaSlugs(): Promise<string[]> {
+  const all = await getAllConvocatorias();
+  return all.map((c) => c.slug);
 }

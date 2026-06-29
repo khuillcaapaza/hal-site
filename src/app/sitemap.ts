@@ -30,7 +30,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE_URL}/nosotros/historia/`, lastModified: now, changeFrequency: "yearly", priority: 0.5 },
   ];
 
-  const convocatorias: MetadataRoute.Sitemap = getAllConvocatorias().map((c) => ({
+  const convocatorias: MetadataRoute.Sitemap = (await getAllConvocatorias()).map((c) => ({
     url: `${BASE_URL}/convocatorias/${c.slug}/`,
     lastModified: toDate(c.date),
     changeFrequency: "weekly",

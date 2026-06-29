@@ -1,8 +1,8 @@
 "use client";
 
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import type { Convocatoria } from "@/lib/convocatorias";
+import { fetchConvocatorias, type ConvocatoriaMeta } from "@/lib/convocatorias";
 
 const areaColors: Record<string, string> = {
   CAS: "bg-green-700",
@@ -12,8 +12,17 @@ const areaColors: Record<string, string> = {
   General: "bg-gray-600",
 };
 
-export default function ConvocatoriasSection({ convocatorias }: { convocatorias: Convocatoria[] }) {
+export default function ConvocatoriasSection() {
   const trackRef = useRef<HTMLDivElement>(null);
+  const [convocatorias, setConvocatorias] = useState<ConvocatoriaMeta[]>([]);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    fetchConvocatorias({ perPage: 8, signal: controller.signal }).then((page) =>
+      setConvocatorias(page.items),
+    );
+    return () => controller.abort();
+  }, []);
 
   const scrollBy = (dir: number) => {
     const track = trackRef.current;
@@ -73,8 +82,8 @@ export default function ConvocatoriasSection({ convocatorias }: { convocatorias:
               <div className="p-6">
                 <div className="flex items-center justify-between mb-4">
                   <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">{c.area}</span>
-                  <span className="text-xs font-semibold px-3 py-1 rounded-full bg-gray-200 text-gray-600">
-                    Cerrada
+                  <span className={`text-xs font-semibold px-3 py-1 rounded-full ${c.status === "Abierta" ? "bg-green-100 text-green-700" : "bg-gray-200 text-gray-600"}`}>
+                    {c.status}
                   </span>
                 </div>
                 <h3 className="font-bold text-gray-900 text-lg leading-snug mb-3 group-hover:text-green-700 transition-colors">
@@ -82,7 +91,7 @@ export default function ConvocatoriasSection({ convocatorias }: { convocatorias:
                 </h3>
                 <p className="text-gray-500 text-sm leading-relaxed mb-5 line-clamp-3">{c.description}</p>
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-400">{c.files.length} documento{c.files.length === 1 ? "" : "s"}</span>
+                  <span className="text-gray-400">{c.fileCount} documento{c.fileCount === 1 ? "" : "s"}</span>
                   <span className="text-green-700 font-semibold group-hover:underline">Ver más →</span>
                 </div>
               </div>

@@ -9,11 +9,9 @@ import MaternitySection from "@/components/MaternitySection";
 import EnlacesInteres from "@/components/EnlacesInteres";
 import Footer from "@/components/Footer";
 import { getAllPosts } from "@/lib/posts";
-import { getAllConvocatorias } from "@/lib/convocatorias";
 
 export default function Home() {
   const posts = getAllPosts();
-  const convocatorias = getAllConvocatorias().slice(0, 8);
 
   return (
     <main>
@@ -22,7 +20,7 @@ export default function Home() {
       <Services />
       <CitasBanner />
       <DoctorFinder />
-      <ConvocatoriasSection convocatorias={convocatorias} />
+      <ConvocatoriasSection />
       <Blog posts={posts} />
       <MaternitySection />
       <EnlacesInteres />

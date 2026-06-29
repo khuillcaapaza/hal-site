@@ -1,8 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import type { Convocatoria } from "@/lib/convocatorias";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { fetchConvocatorias, type ConvocatoriaMeta } from "@/lib/convocatorias";
 
 const areaColors: Record<string, string> = {
   CAS: "bg-green-700",
@@ -19,44 +20,90 @@ const MONTHS = [
 
 const PER_PAGE = 6;
 
-export default function ConvocatoriasList({ convocatorias }: { convocatorias: Convocatoria[] }) {
-  const [query, setQuery] = useState("");
-  const [year, setYear] = useState("all");
-  const [month, setMonth] = useState("all");
-  const [page, setPage] = useState(1);
+export default function ConvocatoriasList() {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
 
-  const years = useMemo(
-    () => Array.from(new Set(convocatorias.map((c) => c.year))).sort((a, b) => b - a),
-    [convocatorias],
-  );
+  const [items, setItems] = useState<ConvocatoriaMeta[]>([]);
+  const [total, setTotal] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+  const [years, setYears] = useState<number[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    return convocatorias.filter((c) => {
-      if (year !== "all" && c.year !== Number(year)) return false;
-      if (month !== "all" && c.month !== Number(month)) return false;
-      if (q && !`${c.title} ${c.area} ${c.description}`.toLowerCase().includes(q)) return false;
-      return true;
-    });
-  }, [convocatorias, query, year, month]);
+  // Initialise from the URL so links / refresh / back-forward keep the state.
+  const [query, setQuery] = useState(() => searchParams.get("q") ?? "");
+  const [debouncedQuery, setDebouncedQuery] = useState(() => searchParams.get("q") ?? "");
+  const [year, setYear] = useState(() => searchParams.get("year") ?? "all");
+  const [month, setMonth] = useState(() => searchParams.get("month") ?? "all");
+  const [page, setPage] = useState(() => {
+    const p = Number(searchParams.get("page"));
+    return Number.isInteger(p) && p > 0 ? p : 1;
+  });
 
-  const totalPages = Math.max(1, Math.ceil(filtered.length / PER_PAGE));
+  // Debounce the search box so we don't hit the API on every keystroke.
+  useEffect(() => {
+    const id = setTimeout(() => setDebouncedQuery(query.trim()), 300);
+    return () => clearTimeout(id);
+  }, [query]);
+
+  // Reset to the first page whenever a filter changes (skip the initial mount
+  // so a page coming from the URL is preserved).
+  const skipReset = useRef(true);
+  useEffect(() => {
+    if (skipReset.current) {
+      skipReset.current = false;
+      return;
+    }
+    setPage(1);
+  }, [debouncedQuery, year, month]);
+
+  // Reflect the current filters / page in the URL (shareable, back-forward).
+  useEffect(() => {
+    const sp = new URLSearchParams();
+    if (debouncedQuery) sp.set("q", debouncedQuery);
+    if (year !== "all") sp.set("year", year);
+    if (month !== "all") sp.set("month", month);
+    if (page > 1) sp.set("page", String(page));
+    const qs = sp.toString();
+    router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+  }, [debouncedQuery, year, month, page, pathname, router]);
+
+  // Fetch a page from the API whenever filters or page change.
+  useEffect(() => {
+    const controller = new AbortController();
+    setLoading(true);
+    fetchConvocatorias({
+      q: debouncedQuery || undefined,
+      year: year !== "all" ? year : undefined,
+      month: month !== "all" ? month : undefined,
+      page,
+      perPage: PER_PAGE,
+      signal: controller.signal,
+    })
+      .then((res) => {
+        setItems(res.items);
+        setTotal(res.total);
+        setTotalPages(res.totalPages);
+        if (res.years.length > 0) setYears(res.years);
+      })
+      .finally(() => setLoading(false));
+    return () => controller.abort();
+  }, [debouncedQuery, year, month, page]);
+
   const safePage = Math.min(page, totalPages);
-  const pageItems = filtered.slice((safePage - 1) * PER_PAGE, safePage * PER_PAGE);
 
   // Group the current page items by year then month.
   const groups = useMemo(() => {
-    const map = new Map<number, Map<number, Convocatoria[]>>();
-    for (const c of pageItems) {
+    const map = new Map<number, Map<number, ConvocatoriaMeta[]>>();
+    for (const c of items) {
       if (!map.has(c.year)) map.set(c.year, new Map());
       const byMonth = map.get(c.year)!;
       if (!byMonth.has(c.month)) byMonth.set(c.month, []);
       byMonth.get(c.month)!.push(c);
     }
     return map;
-  }, [pageItems]);
-
-  const resetPage = () => setPage(1);
+  }, [items]);
 
   return (
     <div>
@@ -69,14 +116,14 @@ export default function ConvocatoriasList({ convocatorias }: { convocatorias: Co
           <input
             type="search"
             value={query}
-            onChange={(e) => { setQuery(e.target.value); resetPage(); }}
+            onChange={(e) => setQuery(e.target.value)}
             placeholder="Buscar convocatoria..."
             className="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-200 focus:border-green-500 focus:ring-2 focus:ring-green-100 outline-none transition"
           />
         </div>
         <select
           value={year}
-          onChange={(e) => { setYear(e.target.value); resetPage(); }}
+          onChange={(e) => setYear(e.target.value)}
           className="px-4 py-3 rounded-xl border border-gray-200 focus:border-green-500 focus:ring-2 focus:ring-green-100 outline-none transition text-gray-700"
         >
           <option value="all">Todos los años</option>
@@ -86,7 +133,7 @@ export default function ConvocatoriasList({ convocatorias }: { convocatorias: Co
         </select>
         <select
           value={month}
-          onChange={(e) => { setMonth(e.target.value); resetPage(); }}
+          onChange={(e) => setMonth(e.target.value)}
           className="px-4 py-3 rounded-xl border border-gray-200 focus:border-green-500 focus:ring-2 focus:ring-green-100 outline-none transition text-gray-700"
         >
           <option value="all">Todos los meses</option>
@@ -98,10 +145,12 @@ export default function ConvocatoriasList({ convocatorias }: { convocatorias: Co
 
       {/* Results count */}
       <p className="text-sm text-gray-500 mb-6">
-        {filtered.length} convocatoria{filtered.length === 1 ? "" : "s"} encontrada{filtered.length === 1 ? "" : "s"}
+        {total} convocatoria{total === 1 ? "" : "s"} encontrada{total === 1 ? "" : "s"}
       </p>
 
-      {filtered.length === 0 ? (
+      {loading ? (
+        <p className="text-center text-gray-400 py-12">Cargando convocatorias…</p>
+      ) : total === 0 ? (
         <p className="text-center text-gray-400 py-12">No se encontraron convocatorias con los filtros seleccionados.</p>
       ) : (
         <div className="space-y-12">
@@ -127,7 +176,7 @@ export default function ConvocatoriasList({ convocatorias }: { convocatorias: Co
                           <div className="p-6">
                             <div className="flex items-center justify-between mb-4">
                               <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">{c.area}</span>
-                              <span className="text-xs font-semibold px-3 py-1 rounded-full bg-gray-200 text-gray-600">Cerrada</span>
+                              <span className={`text-xs font-semibold px-3 py-1 rounded-full ${c.status === "Abierta" ? "bg-green-100 text-green-700" : "bg-gray-200 text-gray-600"}`}>{c.status}</span>
                             </div>
                             <h4 className="font-bold text-gray-900 text-base leading-snug mb-3 group-hover:text-green-700 transition-colors">
                               {c.title}
@@ -135,7 +184,7 @@ export default function ConvocatoriasList({ convocatorias }: { convocatorias: Co
                             <p className="text-gray-500 text-sm leading-relaxed mb-5 line-clamp-3">{c.description}</p>
                             <div className="flex items-center justify-between text-sm">
                               <span className="text-gray-400">
-                                {String(c.day).padStart(2, "0")} {MONTHS[c.month - 1].slice(0, 3)} {c.year} · {c.files.length} doc.
+                                {String(c.day).padStart(2, "0")} {MONTHS[c.month - 1].slice(0, 3)} {c.year} · {c.fileCount} doc.
                               </span>
                               <span className="text-green-700 font-semibold group-hover:underline">Ver más →</span>
                             </div>

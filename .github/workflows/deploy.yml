@@ -35,6 +35,8 @@ jobs:
           NEXT_PUBLIC_BASE_PATH: ""
           # API de citas: el sitio consume cronogramas en vivo desde aquí.
           NEXT_PUBLIC_API_BASE: "https://citas.hospitalantoniolorena.gob.pe/api"
+          # API de convocatorias: lectura pública en vivo (listados y detalle).
+          NEXT_PUBLIC_CONVOCATORIAS_API: "https://convocatorias.hospitalantoniolorena.gob.pe"
 
       - name: Configure SSH key
         run: |
@@ -67,7 +69,7 @@ jobs:
             set sftp:connect-program 'ssh -a -x -o StrictHostKeyChecking=accept-new -o UserKnownHostsFile=/dev/null -i ~/.ssh/id_deploy -p ${{ secrets.HESTIA_SSH_PORT }}';
             set net:max-retries 2;
             set net:timeout 20;
-            mirror -R --delete -X '*.pdf' -x '^documentos/' --parallel=4 --verbose ./out/ '${{ secrets.HESTIA_TARGET_PATH }}';
+            mirror -R --delete -X '*.pdf' -x '^documentos/' -x '^files-api/' --parallel=4 --verbose ./out/ '${{ secrets.HESTIA_TARGET_PATH }}';
             bye
           "
 
