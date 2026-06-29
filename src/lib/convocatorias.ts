@@ -10,6 +10,11 @@
  * una API caída nunca rompa la construcción estática.
  */
 
+import convocatoriasFiles from "./convocatorias-files.json";
+
+/** Slugs estáticos de respaldo (build sin acceso a la API). */
+const SLUGS_RESPALDO = Object.keys(convocatoriasFiles);
+
 /** URL pública del servicio de convocatorias (sin barra final). */
 const API_BASE = (
   process.env.NEXT_PUBLIC_CONVOCATORIAS_API ??
@@ -217,5 +222,7 @@ export async function getConvocatoriaBySlug(
 /** Slugs de todas las convocatorias (para `generateStaticParams`). Falla a `[]`. */
 export async function getAllConvocatoriaSlugs(): Promise<string[]> {
   const all = await getAllConvocatorias();
-  return all.map((c) => c.slug);
+  const slugs = all.map((c) => c.slug);
+  // Si la API no responde en build, usa los slugs estáticos para no romper export.
+  return slugs.length > 0 ? slugs : SLUGS_RESPALDO;
 }

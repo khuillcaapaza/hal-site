@@ -7,9 +7,9 @@ import {
   getConvocatoriaBySlug,
 } from "@/lib/convocatorias";
 
-// Pre-render the convocatorias that exist at build time (static export). New
-// convocatorias created in the admin panel show up in the listings instantly
-// (the listings fetch live); their dedicated page is emitted on the next deploy.
+// Pre-render the convocatorias that exist at build time (static export). Their
+// listing appears instantly (the home/listing fetch live), but each dedicated
+// detail page is only emitted on the next deploy; unknown slugs 404 until then.
 export const dynamicParams = false;
 
 export async function generateStaticParams() {
