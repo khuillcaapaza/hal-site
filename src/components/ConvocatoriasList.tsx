@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { fetchConvocatorias, type ConvocatoriaMeta } from "@/lib/convocatorias";
 
 const areaColors: Record<string, string> = {
@@ -21,25 +20,17 @@ const MONTHS = [
 const PER_PAGE = 6;
 
 export default function ConvocatoriasList() {
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-
   const [items, setItems] = useState<ConvocatoriaMeta[]>([]);
   const [total, setTotal] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
   const [years, setYears] = useState<number[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Initialise from the URL so links / refresh / back-forward keep the state.
-  const [query, setQuery] = useState(() => searchParams.get("q") ?? "");
-  const [debouncedQuery, setDebouncedQuery] = useState(() => searchParams.get("q") ?? "");
-  const [year, setYear] = useState(() => searchParams.get("year") ?? "all");
-  const [month, setMonth] = useState(() => searchParams.get("month") ?? "all");
-  const [page, setPage] = useState(() => {
-    const p = Number(searchParams.get("page"));
-    return Number.isInteger(p) && p > 0 ? p : 1;
-  });
+  const [query, setQuery] = useState("");
+  const [debouncedQuery, setDebouncedQuery] = useState("");
+  const [year, setYear] = useState("all");
+  const [month, setMonth] = useState("all");
+  const [page, setPage] = useState(1);
 
   // Debounce the search box so we don't hit the API on every keystroke.
   useEffect(() => {
@@ -58,17 +49,6 @@ export default function ConvocatoriasList() {
     setPage(1);
   }, [debouncedQuery, year, month]);
 
-  // Reflect the current filters / page in the URL (shareable, back-forward).
-  useEffect(() => {
-    const sp = new URLSearchParams();
-    if (debouncedQuery) sp.set("q", debouncedQuery);
-    if (year !== "all") sp.set("year", year);
-    if (month !== "all") sp.set("month", month);
-    if (page > 1) sp.set("page", String(page));
-    const qs = sp.toString();
-    router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
-  }, [debouncedQuery, year, month, page, pathname, router]);
-
   // Fetch a page from the API whenever filters or page change.
   useEffect(() => {
     const controller = new AbortController();
@@ -84,9 +64,10 @@ export default function ConvocatoriasList() {
       .then((res) => {
         setItems(res.items);
         setTotal(res.total);
-        setTotalPages(res.totalPages);
+        setTotalPages(res.totalPages || 1);
         if (res.years.length > 0) setYears(res.years);
       })
+      .catch(() => {})
       .finally(() => setLoading(false));
     return () => controller.abort();
   }, [debouncedQuery, year, month, page]);

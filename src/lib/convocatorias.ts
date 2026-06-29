@@ -18,7 +18,7 @@ const SLUGS_RESPALDO = Object.keys(convocatoriasFiles);
 /** URL pública del servicio de convocatorias (sin barra final). */
 const API_BASE = (
   process.env.NEXT_PUBLIC_CONVOCATORIAS_API ??
-  "https://convocatorias.hospitalantoniolorena.gob.pe"
+  "https://convocatorias.hospitalantoniolorena.gob.pe/api"
 ).replace(/\/+$/, "");
 
 /** Un archivo descargable que pertenece a una convocatoria. */
