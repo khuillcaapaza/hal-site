@@ -36,7 +36,7 @@ jobs:
           # API de citas: el sitio consume cronogramas en vivo desde aquí.
           NEXT_PUBLIC_API_BASE: "https://citas.hospitalantoniolorena.gob.pe/api"
           # API de convocatorias: lectura pública en vivo (listados y detalle).
-          NEXT_PUBLIC_CONVOCATORIAS_API: "https://convocatorias.hospitalantoniolorena.gob.pe/api"
+          NEXT_PUBLIC_CONVOCATORIAS_API: "https://convocatorias.hospitalantoniolorena.gob.pe"
 
       - name: Configure SSH key
         run: |
