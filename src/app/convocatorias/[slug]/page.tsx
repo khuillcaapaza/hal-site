@@ -10,6 +10,8 @@ import {
 // Pre-render the convocatorias that exist at build time (static export). New
 // convocatorias created in the admin panel show up in the listings instantly
 // (the listings fetch live); their dedicated page is emitted on the next deploy.
+export const dynamicParams = false;
+
 export async function generateStaticParams() {
   const slugs = await getAllConvocatoriaSlugs();
   return slugs.map((slug) => ({ slug }));
