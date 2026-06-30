@@ -39,11 +39,20 @@ export default function AutoridadesPage() {
               key={person.role}
               className="flex items-center gap-4 p-6 rounded-2xl border border-gray-100 hover:border-green-200 hover:shadow-md transition-all"
             >
-              <div className="w-14 h-14 shrink-0 rounded-full bg-green-100 text-green-700 flex items-center justify-center">
-                <svg className="w-7 h-7" fill="none" stroke="currentColor" strokeWidth={1.6} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0zM12 14a7 7 0 0 0-7 7h14a7 7 0 0 0-7-7z" />
-                </svg>
-              </div>
+              {person.image ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={person.image}
+                  alt={person.name}
+                  className="w-16 h-16 shrink-0 rounded-full object-cover object-top border border-gray-100"
+                />
+              ) : (
+                <div className="w-14 h-14 shrink-0 rounded-full bg-green-100 text-green-700 flex items-center justify-center">
+                  <svg className="w-7 h-7" fill="none" stroke="currentColor" strokeWidth={1.6} viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0zM12 14a7 7 0 0 0-7 7h14a7 7 0 0 0-7-7z" />
+                  </svg>
+                </div>
+              )}
               <div>
                 <p className="text-xs font-semibold text-green-700 uppercase tracking-wider">{person.area}</p>
                 <h3 className="font-bold text-gray-900">{person.role}</h3>

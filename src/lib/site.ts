@@ -83,12 +83,12 @@ export const nosotros = {
    * the current officials of the hospital.
    */
   authorities: [
-    { role: "Dirección General", name: "M.C. Javier Cuno Vera", area: "Órgano de Dirección" },
+    { role: "Dirección General", name: "M.C. Javier Cuno Vera", area: "Órgano de Dirección", image: "/images/autoridades/autoridades2026/direccion-general.jpeg" },
     { role: "Sub Dirección", name: "Dr. Edwar Luque Florez", area: "Órgano de Dirección" },
-    { role: "Oficina de Administración", name: "C.P.C. Amilcar Choque Castillo", area: "Órgano de Apoyo" },
-    { role: "Oficina de Planeamiento", name: "Lic. Adm. Yuli Huarhua Zapata", area: "Órgano de Asesoramiento" },
-    { role: "Oficina de Gestión de la Calidad", name: "Dr. Rubén Darío Fernández Alata", area: "Órgano de Asesoramiento" },
-    { role: "Oficina de Recursos Humanos", name: "C.P.C. Gloria Nina Montiel", area: "Órgano de Apoyo" },
+    { role: "Oficina de Administración", name: "C.P.C. Amilcar Choque Castillo", area: "Órgano de Apoyo", image: "/images/autoridades/autoridades2026/oficina-de-administracion.jpeg" },
+    { role: "Oficina de Planeamiento", name: "Lic. Adm. Yuli Huarhua Zapata", area: "Órgano de Asesoramiento", image: "/images/autoridades/autoridades2026/oficina-de-planeamiento.jpeg" },
+    { role: "Oficina de Gestión de la Calidad", name: "Dr. Rubén Darío Fernández Alata", area: "Órgano de Asesoramiento", image: "/images/autoridades/autoridades2026/oficina-de-gestion-de-la-calidad.jpeg" },
+    { role: "Oficina de Recursos Humanos", name: "C.P.C. Gloria Nina Montiel", area: "Órgano de Apoyo", image: "/images/autoridades/autoridades2026/oficina-de-recursos-humanos.jpeg" },
   ],
 };
 
