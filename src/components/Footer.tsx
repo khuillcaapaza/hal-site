@@ -21,7 +21,6 @@ const footerLinks = {
   enlaces: [
     "Correo Institucional",
     "Reporte Epidemiológico",
-    "Documentos de Gestión",
     "Revista Científica",
     "Libro de Reclamaciones",
     "Portal de Transparencia",

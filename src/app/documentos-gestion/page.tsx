@@ -4,7 +4,7 @@ import Footer from "@/components/Footer";
 import { documentosGestion } from "@/lib/site";
 
 export const metadata: Metadata = {
-  title: "Documentos de Gestión · Hospital Antonio Lorena del Cusco",
+  title: "Portal de Transparencia · Hospital Antonio Lorena del Cusco",
   description:
     "Documentos de gestión del Hospital Antonio Lorena del Cusco clasificados por planeamiento, presupuesto, inversión, participación ciudadana, personal, contrataciones y más.",
 };
@@ -69,7 +69,7 @@ export default function DocumentosGestionPage() {
           <p className="text-green-200 font-semibold text-sm uppercase tracking-widest mb-3">
             Transparencia institucional
           </p>
-          <h1 className="text-3xl sm:text-4xl font-bold leading-tight mb-4">Documentos de Gestión</h1>
+          <h1 className="text-3xl sm:text-4xl font-bold leading-tight mb-4">Portal de Transparencia</h1>
           <p className="text-green-100 max-w-3xl leading-relaxed">
             Accede a los documentos de gestión del Hospital Antonio Lorena del Cusco, organizados
             por temas según el Portal de Transparencia Estándar.

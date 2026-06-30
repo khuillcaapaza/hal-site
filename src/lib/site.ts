@@ -178,7 +178,7 @@ export const services = [
     image: "/images/photo-1.jpg",
   },
   {
-    title: "Documentos de Gestión",
+    title: "Portal de Transparencia",
     desc: "Documentos normativos, planes y resoluciones de la institución.",
     icon: "documents",
     href: "/documentos-gestion",
@@ -253,7 +253,7 @@ export const enlacesInteres = [
   { name: "GERESA Cusco", full: "Gerencia Regional de Salud Cusco", href: "https://www.gob.pe/regioncusco-geresa" },
 ];
 
-/** Document management categories for the "Documentos de Gestión" page. */
+/** Document management categories for the "Portal de Transparencia" page. */
 export const documentosGestion = [
   {
     slug: "planeamiento-y-organizacion",
@@ -354,7 +354,6 @@ export const specialties = [
 export const onlineServices = [
   { title: "Correo Institucional", desc: "Acceso al webmail del personal del hospital.", href: site.contact.webmail },
   { title: "Reporte Epidemiológico", desc: "Información de vigilancia epidemiológica.", href: "/#" },
-  { title: "Documentos de Gestión", desc: "Documentos normativos y de gestión institucional.", href: "/#" },
   { title: "Revista Científica", desc: "Publicación de investigación en salud del HAL.", href: "/#" },
   { title: "Libro de Reclamaciones", desc: "Registra tu queja o sugerencia.", href: "/#" },
   { title: "Portal de Transparencia", desc: "Acceso a la información pública del hospital.", href: "/#" },
