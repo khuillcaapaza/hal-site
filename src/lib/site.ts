@@ -309,7 +309,15 @@ export const documentosGestion = [
     title: "Personal",
     desc: "Información del personal, planillas, escala remunerativa y procesos de selección.",
     icon: "mail",
-    documents: [] as { title: string; date?: string; href: string }[],
+    documents: [
+      { title: "Decreto Supremo N° 013-2025-SA", href: "/documentos/recursos-humanos/DECRETO-SUPREMO-N%C2%BA013-2025-SA.pdf" },
+      { title: "Resolución Ministerial N° 432-2025-MINSA", href: "/documentos/recursos-humanos/RESOLUCION-MINISTERIAL-N%C2%B0432-2025MINSA.pdf" },
+      { title: "Reglamento Interno de los Servidores Civiles (RIS)", href: "/documentos/recursos-humanos/REGLAMENTO-INTERNO-SERVIDORES-CIVILES-RIS.pdf" },
+      { title: "Resolución Directoral N° 409-2024-HAL-UGRH", href: "/documentos/recursos-humanos/RESOLUCION-DIRECTORAL-N%C2%B0409-2024-HALUGRH.pdf" },
+      { title: "Resolución Directoral N° 361-2024-HAL-UGRH", href: "/documentos/recursos-humanos/RESOLUCION-DIRECTORAL-N%C2%B0361-2024-HALUGRH.pdf" },
+      { title: "Resolución Directoral N° 258-2023-HAL-UGRH", href: "/documentos/recursos-humanos/RESOLUCION-DIRECTORAL-N%C2%B0258-2023-HALUGRH.pdf" },
+      { title: "Resolución Directoral N° 245-2023-HAL-UGRH", href: "/documentos/recursos-humanos/RESOLUCION-DIRECTORAL-N%C2%B0245-2023-HALUGRH.pdf" },
+    ] as { title: string; date?: string; href: string }[],
   },
   {
     slug: "contratacion-de-bienes-y-servicios",
