@@ -65,7 +65,7 @@ export default function Services() {
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {services.map((svc) => (
             <a
-              key={svc.title}
+              key={svc.href}
               href={svc.href}
               {...(svc.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
               className="group relative overflow-hidden p-8 rounded-2xl border border-gray-100 shadow-sm hover:shadow-xl transition-all hover:-translate-y-1 cursor-pointer"

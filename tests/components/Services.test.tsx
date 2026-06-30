@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { describe, it, expect } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import Services from "@/components/Services";
 import { services } from "@/lib/site";
 
@@ -13,8 +13,15 @@ describe("Services", () => {
     ).toBeInTheDocument();
 
     for (const svc of services) {
-      const heading = screen.getByRole("heading", { name: new RegExp(svc.title) });
-      const anchor = heading.closest("a")!;
+      // Titles can repeat (e.g. two "Portal de Transparencia" cards), so locate
+      // each card by its unique href and assert the heading text from there.
+      const anchor = document.querySelector<HTMLAnchorElement>(
+        `a[href="${svc.href}"]`,
+      )!;
+      expect(anchor).not.toBeNull();
+      expect(
+        within(anchor).getByRole("heading", { name: svc.title }),
+      ).toBeInTheDocument();
       expect(anchor).toHaveAttribute("href", svc.href);
       if (svc.external) {
         expect(anchor).toHaveAttribute("target", "_blank");
