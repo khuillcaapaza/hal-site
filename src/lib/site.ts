@@ -84,9 +84,9 @@ export const nosotros = {
    */
   authorities: [
     { role: "Dirección General", name: "Nombre por asignar", area: "Órgano de Dirección" },
-    { role: "Dirección Ejecutiva Adjunta", name: "Nombre por asignar", area: "Órgano de Dirección" },
+    { role: "Sub Dirección", name: "Nombre por asignar", area: "Órgano de Dirección" },
     { role: "Oficina de Administración", name: "Nombre por asignar", area: "Órgano de Apoyo" },
-    { role: "Oficina de Planeamiento Estratégico", name: "Nombre por asignar", area: "Órgano de Asesoramiento" },
+    { role: "Oficina de Planeamiento", name: "Nombre por asignar", area: "Órgano de Asesoramiento" },
     { role: "Oficina de Gestión de la Calidad", name: "Nombre por asignar", area: "Órgano de Asesoramiento" },
     { role: "Oficina de Recursos Humanos", name: "Nombre por asignar", area: "Órgano de Apoyo" },
   ],
