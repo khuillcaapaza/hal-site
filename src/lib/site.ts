@@ -83,12 +83,12 @@ export const nosotros = {
    * the current officials of the hospital.
    */
   authorities: [
-    { role: "Dirección General", name: "Nombre por asignar", area: "Órgano de Dirección" },
-    { role: "Sub Dirección", name: "Nombre por asignar", area: "Órgano de Dirección" },
-    { role: "Oficina de Administración", name: "Nombre por asignar", area: "Órgano de Apoyo" },
-    { role: "Oficina de Planeamiento", name: "Nombre por asignar", area: "Órgano de Asesoramiento" },
-    { role: "Oficina de Gestión de la Calidad", name: "Nombre por asignar", area: "Órgano de Asesoramiento" },
-    { role: "Oficina de Recursos Humanos", name: "Nombre por asignar", area: "Órgano de Apoyo" },
+    { role: "Dirección General", name: "M.C. Javier Cuno Vera", area: "Órgano de Dirección" },
+    { role: "Sub Dirección", name: "Dr. Edwar Luque Florez", area: "Órgano de Dirección" },
+    { role: "Oficina de Administración", name: "C.P.C. Amilcar Choque Castillo", area: "Órgano de Apoyo" },
+    { role: "Oficina de Planeamiento", name: "Lic. Adm. Yuli Huarhua Zapata", area: "Órgano de Asesoramiento" },
+    { role: "Oficina de Gestión de la Calidad", name: "Dr. Rubén Darío Fernández Alata", area: "Órgano de Asesoramiento" },
+    { role: "Oficina de Recursos Humanos", name: "C.P.C. Gloria Nina Montiel", area: "Órgano de Apoyo" },
   ],
 };
 
