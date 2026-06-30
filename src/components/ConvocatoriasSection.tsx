@@ -26,10 +26,9 @@ export default function ConvocatoriasSection() {
 
   const scrollBy = (dir: number) => {
     const track = trackRef.current;
-    if (!track) return;
-    const card = track.querySelector<HTMLElement>("[data-card]");
+    const card = track?.querySelector<HTMLElement>("[data-card]");
     const amount = card ? card.offsetWidth + 24 : 320;
-    track.scrollBy({ left: dir * amount, behavior: "smooth" });
+    track?.scrollBy({ left: dir * amount, behavior: "smooth" });
   };
 
   if (convocatorias.length === 0) return null;

@@ -1,0 +1,30 @@
+# Cabeceras de seguridad para el sitio estático (Next.js output: export).
+# Este archivo está en public/ -> Next lo copia tal cual a out/ y se despliega
+# en la raíz del dominio. Requiere Apache con mod_headers (activo en este server,
+# ya que las APIs usan .htaccess/mod_rewrite). Si el sitio se sirviera SOLO con
+# nginx, estas cabeceras hay que ponerlas en la config de nginx/Hestia.
+
+<IfModule mod_headers.c>
+    # No permitir que el navegador "adivine" tipos MIME.
+    Header always set X-Content-Type-Options "nosniff"
+
+    # Anti-clickjacking (respaldo de frame-ancestors para navegadores viejos).
+    Header always set X-Frame-Options "DENY"
+
+    # No filtrar la URL completa como Referer hacia terceros.
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+
+    # Desactiva APIs del navegador que este sitio no usa.
+    Header always set Permissions-Policy "accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()"
+
+    # HSTS: fuerza HTTPS durante 1 año. Sin includeSubDomains para no afectar
+    # subdominios que aún no estén 100% en HTTPS. Si ya lo defines en nginx/Hestia,
+    # elimina UNA de las dos definiciones para no duplicar la cabecera.
+    Header always set Strict-Transport-Security "max-age=31536000" "expr=%{HTTPS} == 'on'"
+
+    # Content-Security-Policy (conservadora: permite EXACTAMENTE lo que el sitio
+    # usa hoy -> Google Tag Manager / Analytics, fuentes propias (next/font las
+    # auto-hospeda), estilos inline de Next/Tailwind y las dos APIs por fetch).
+    # 'unsafe-inline' en script-src es necesario por el bootstrap inline de GTM.
+    Header always set Content-Security-Policy "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; img-src 'self' data: https://www.googletagmanager.com https://www.google-analytics.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com; connect-src 'self' https://citas.hospitalantoniolorena.gob.pe https://convocatorias.hospitalantoniolorena.gob.pe https://www.googletagmanager.com https://www.google-analytics.com https://analytics.google.com; frame-src https://www.googletagmanager.com; upgrade-insecure-requests"
+</IfModule>
