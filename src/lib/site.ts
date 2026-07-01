@@ -203,7 +203,7 @@ export const services = [
   },
   {
     title: "Información Epidemiológica",
-    desc: "Consulta la información pública del hospital.",
+    desc: "Boletines, reportes y salas situacionales de vigilancia epidemiológica.",
     icon: "transparency",
     href: "/informacion-epidemiologica",
     external: false,
