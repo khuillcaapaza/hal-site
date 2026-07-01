@@ -202,11 +202,11 @@ export const services = [
     image: "/images/photo-1.jpg",
   },
   {
-    title: "Portal de Transparencia",
+    title: "Información Epidemiológica",
     desc: "Consulta la información pública del hospital.",
     icon: "transparency",
-    href: "https://www.transparencia.gob.pe/enlaces/pte_transparencia_enlaces.aspx?id_entidad=13471",
-    external: true,
+    href: "/informacion-epidemiologica",
+    external: false,
     image: "/images/photo-2.jpg",
   },
   {
@@ -252,6 +252,13 @@ export const enlacesInteres = [
   { name: "GORE Cusco", full: "Gobierno Regional del Cusco", href: "https://www.gob.pe/regioncusco" },
   { name: "GERESA Cusco", full: "Gerencia Regional de Salud Cusco", href: "https://www.gob.pe/regioncusco-geresa" },
 ];
+
+/** Epidemiological information page: title, description and its document list. */
+export const informacionEpidemiologica = {
+  title: "Información Epidemiológica",
+  desc: "Boletines, reportes y salas situacionales de vigilancia epidemiológica del hospital.",
+  documents: [] as { title: string; date?: string; href: string }[],
+};
 
 /** Document management categories for the "Portal de Transparencia" page. */
 export const documentosGestion = [
